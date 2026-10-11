@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ai-news-video-generator
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: video-archive
+      mountPath: /app/backend/outputs
+      sizeGB: 10
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: GNEWS_API_KEY
+        sync: false
+      - key: UNSPLASH_ACCESS_KEY
+        sync: false
+      - key: PIXABAY_API_KEY
+        sync: false

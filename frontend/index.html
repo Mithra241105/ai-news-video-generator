@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI News Video Generator — Broadcast Automation Studio</title>
+  <meta name="description" content="Turn breaking news articles and headlines into high-quality broadcast news videos with AI narration and automated FFmpeg video assembly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Studio Header -->
+  <header class="studio-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-badge">LIVE STUDIO</div>
+        <div class="brand-title-wrap">
+          <h1>AI News Video Generator</h1>
+          <p class="tagline">Automated Journalism &amp; Video Production Engine</p>
+        </div>
+      </div>
+      <div class="system-status" id="systemStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">Checking Engine Status...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="studio-main">
+
+    <!-- Category Bar & Search -->
+    <section class="discovery-section">
+      <div class="category-pills" id="categoryPills">
+        <!-- Dynamically rendered or fallback -->
+        <button class="pill-btn active" data-category="general" id="cat-general">Top Stories</button>
+        <button class="pill-btn" data-category="technology" id="cat-technology">Technology</button>
+        <button class="pill-btn" data-category="business" id="cat-business">Business</button>
+        <button class="pill-btn" data-category="science" id="cat-science">Science</button>
+        <button class="pill-btn" data-category="health" id="cat-health">Health</button>
+        <button class="pill-btn" data-category="sports" id="cat-sports">Sports</button>
+        <button class="pill-btn" data-category="entertainment" id="cat-entertainment">Entertainment</button>
+      </div>
+
+      <div class="search-bar-wrap">
+        <div class="search-input-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input
+            id="topicInput"
+            type="text"
+            placeholder="Search news by topic (e.g. AI, Space, Electric Vehicles, Economy)..."
+            autocomplete="off"
+          />
+          <button id="clearSearchBtn" class="clear-btn" title="Clear search" style="display: none;">&times;</button>
+        </div>
+        <button id="searchBtn" class="primary-btn search-btn" onclick="handleSearch()">Search News</button>
+      </div>
+    </section>
+
+    <!-- Studio Layout -->
+    <div class="studio-workspace">
+
+      <!-- LEFT COLUMN: News Feed -->
+      <section class="news-feed-panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h2 class="panel-title">Curated Stories</h2>
+            <span class="badge" id="articleCountBadge">Loading...</span>
+          </div>
+          <button id="refreshFeedBtn" class="icon-btn" title="Refresh articles" onclick="fetchArticles()">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Refresh
+          </button>
+        </div>
+
+        <!-- News Feed Grid -->
+        <div id="articlesGrid" class="articles-grid">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Fetching real-time news dispatches...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Studio Controls & Video Player -->
+      <section class="production-panel">
+
+        <!-- Stage 1: Selected Story & Script Studio -->
+        <div class="studio-card active-card" id="scriptStudioCard">
+          <div class="card-header">
+            <span class="step-num">1</span>
+            <div>
+              <h3>Narration Script Studio</h3>
+              <p class="card-desc">Review and customize the broadcast narration script</p>
+            </div>
+          </div>
+
+          <div class="selected-story-summary" id="selectedStorySummary">
+            <div class="story-placeholder">Select an article on the left to begin video production.</div>
+          </div>
+
+          <div class="script-editor-wrap" id="scriptEditorWrap" style="display: none;">
+            <div class="headline-editor-box">
+              <label for="headlineInput">Broadcast Headline Overlay</label>
+              <input
+                id="headlineInput"
+                type="text"
+                class="form-input"
+                placeholder="Headline text to display on screen..."
+              />
+            </div>
+
+            <div class="script-toolbar">
+              <label for="scriptContent">Anchor Narration Script</label>
+              <div class="script-meta">
+                <span id="wordCountLabel">0 words</span>
+                <span class="bullet">•</span>
+                <span id="durationEstLabel">~0s</span>
+              </div>
+            </div>
+            <textarea
+              id="scriptContent"
+              rows="6"
+              placeholder="Enter or edit the voiceover narration script here..."
+            ></textarea>
+            <div class="script-actions">
+              <button id="resetScriptBtn" class="text-btn" onclick="resetScriptToDefault()">Reset to Default</button>
+              <button id="previewVoiceBtn" class="secondary-btn" onclick="previewVoiceNarration()">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Preview Voice
+              </button>
+            </div>
+            <!-- Audio Preview Player -->
+            <div id="audioPreviewWrap" class="audio-preview-wrap" style="display: none;">
+              <span class="audio-label">Narration Preview:</span>
+              <audio id="audio" controls></audio>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Format & Voice Controls -->
+        <div class="studio-card" id="formatSettingsCard">
+          <div class="card-header">
+            <span class="step-num">2</span>
+            <div>
+              <h3>Broadcast Settings</h3>
+              <p class="card-desc">Choose anchor voice, visual template, and video format</p>
+            </div>
+          </div>
+
+          <!-- Video Template Selector -->
+          <div class="template-selector-block">
+            <label class="setting-label">Visual Template</label>
+            <div class="template-pills" id="templateOptions">
+              <button type="button" class="template-opt active" data-template="breaking" id="tmpl-breaking">
+                <span class="tmpl-chip" style="background: #DC2626;">ALERT</span>
+                <span class="tmpl-name">Breaking News</span>
+              </button>
+              <button type="button" class="template-opt" data-template="editorial" id="tmpl-editorial">
+                <span class="tmpl-chip" style="background: #4F46E5;">REPORT</span>
+                <span class="tmpl-name">Modern Editorial</span>
+              </button>
+              <button type="button" class="template-opt" data-template="documentary" id="tmpl-documentary">
+                <span class="tmpl-chip" style="background: #334155;">DISPATCH</span>
+                <span class="tmpl-name">Minimal Doc</span>
+              </button>
+              <button type="button" class="template-opt" data-template="tech" id="tmpl-tech">
+                <span class="tmpl-chip" style="background: #0891B2;">TECH</span>
+                <span class="tmpl-name">Tech Briefing</span>
+              </button>
+              <button type="button" class="template-opt" data-template="shorts" id="tmpl-shorts">
+                <span class="tmpl-chip" style="background: #EAB308; color: #000;">QUICK</span>
+                <span class="tmpl-name">News Shorts</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label for="voiceSelect">AI Anchor Voice</label>
+              <select id="voiceSelect" class="form-select">
+                <option value="en-US-GuyNeural">Guy (US - Anchor Male)</option>
+                <option value="en-US-JennyNeural">Jenny (US - Anchor Female)</option>
+                <option value="en-IN-NeerjaNeural">Neerja (India - News Female)</option>
+                <option value="en-IN-PrabhatNeural">Prabhat (India - News Male)</option>
+                <option value="en-GB-RyanNeural">Ryan (UK - Broadcast Male)</option>
+                <option value="en-GB-SoniaNeural">Sonia (UK - Broadcast Female)</option>
+                <option value="en-AU-WilliamNeural">William (Australia - News Male)</option>
+                <option value="hi-IN-MadhurNeural">Madhur (Hindi - News Male)</option>
+                <option value="hi-IN-SwaraNeural">Swara (Hindi - News Female)</option>
+                <option value="es-ES-AlvaroNeural">Alvaro (Spanish - News Male)</option>
+                <option value="fr-FR-HenriNeural">Henri (French - News Male)</option>
+                <option value="de-DE-ConradNeural">Conrad (German - News Male)</option>
+                <option value="ja-JP-KeitaNeural">Keita (Japanese - News Male)</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <label>Video Aspect Ratio</label>
+              <div class="format-toggle" id="aspectRatioGroup">
+                <button type="button" class="format-opt active" data-ratio="16:9" id="ratio-16-9">
+                  <span class="aspect-icon ratio-16-9-icon"></span>
+                  16:9 Landscape
+                </button>
+                <button type="button" class="format-opt" data-ratio="9:16" id="ratio-9-16">
+                  <span class="aspect-icon ratio-9-16-icon"></span>
+                  9:16 Vertical (Shorts)
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label for="narrationLangSelect">Narration Language</label>
+              <select id="narrationLangSelect" class="form-select">
+                <option value="en" selected>English (Original Feed)</option>
+                <option value="hi">Hindi (हिन्दी)</option>
+                <option value="es">Spanish (Español)</option>
+                <option value="fr">French (Français)</option>
+                <option value="de">German (Deutsch)</option>
+                <option value="ja">Japanese (日本語)</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <label for="subtitlesLangSelect">Subtitles</label>
+              <select id="subtitlesLangSelect" class="form-select">
+                <option value="en" selected>English Subtitles (Burned)</option>
+                <option value="none">No Subtitles</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Video Generation Action Button -->
+          <div class="action-block">
+            <button
+              id="generateBtn"
+              class="primary-btn render-btn"
+              onclick="startVideoRender()"
+              disabled
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+              Render Broadcast Video
+            </button>
+          </div>
+
+          <!-- Real-Time Progress Indicator -->
+          <div id="renderProgress" class="render-progress" style="display: none;">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-status-box">
+              <div class="spinner-small" id="progressSpinner"></div>
+              <span id="progressMessage">Initializing production pipeline...</span>
+            </div>
+            <div class="stepper" id="stepper">
+              <div class="step-item" id="step-voice">1. Synthesize Voice</div>
+              <div class="step-item" id="step-assets">2. Collect Visuals</div>
+              <div class="step-item" id="step-ffmpeg">3. FFmpeg Assembly</div>
+              <div class="step-item" id="step-complete">4. Export MP4</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Video Preview & Export Player -->
+        <div class="studio-card" id="videoOutputCard" style="display: none;">
+          <div class="card-header">
+            <span class="step-num success-num">&#10003;</span>
+            <div>
+              <h3>Broadcast Video Output</h3>
+              <p class="card-desc">Your video has rendered and is ready for publishing</p>
+            </div>
+          </div>
+
+          <div class="video-container" id="videoContainer">
+            <video id="video" controls playsinline></video>
+          </div>
+
+          <div class="video-specs" id="videoSpecs">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="export-actions">
+            <a id="downloadVideoBtn" class="primary-btn download-btn" href="#" download="news-video.mp4">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download MP4 Video
+            </a>
+            <button id="copyLinkBtn" class="secondary-btn" onclick="copyVideoLink()">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy Video Link
+            </button>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- Production Archive / Video History -->
+    <section class="history-section">
+      <div class="history-header">
+        <div>
+          <h2>Production Archive</h2>
+          <p class="section-desc">Previously rendered broadcast stories and video exports</p>
+        </div>
+        <button id="refreshHistoryBtn" class="text-btn" onclick="fetchVideoHistory()">Refresh Archive</button>
+      </div>
+
+      <div id="historyGrid" class="history-grid">
+        <div class="history-empty">No rendered videos yet. Select a story above to create one.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="studio-footer">
+    <p>AI News Video Generator &bull; Powered by Node.js, Express, Microsoft Neural Edge-TTS &amp; FFmpeg 8.0</p>
+  </footer>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

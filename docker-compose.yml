@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  news-video-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-news-studio
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - GNEWS_API_KEY=${GNEWS_API_KEY}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - PIXABAY_API_KEY=${PIXABAY_API_KEY}
+    volumes:
+      # Persistent storage for rendered videos, thumbnails, and archive metadata
+      - ./backend/outputs:/app/backend/outputs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
