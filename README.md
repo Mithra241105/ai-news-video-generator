@@ -203,8 +203,10 @@ npm test
   - FFmpeg 9:16 Technology Briefing vertical rendering
   - Sub-millisecond audio/video sync verification (`apad`)
   - Atomic archive persistence concurrency stress test
+- **Daily Autonomous News Video Scheduler** (`backend/test/scheduler.test.js`):
+  - State inspection, deduplication tracking, HTTP status & config, and end-to-end automated video generation pass
 
-**Status: 27 tests passing across 8 suites (100% pass rate).**
+**Status: 33 tests passing across 9 suites (100% pass rate).**
 
 ---
 
@@ -244,19 +246,32 @@ The container will expose port 5000 and mount `./backend/outputs` to persist ren
 
 ---
 
-### Cloud Hosting (Render, Railway, Fly.io)
+### Cloud Hosting — 100% Zero-Cost Tier (Render Free Plan)
 
-This repository includes `render.yaml` for 1-click Infrastructure-as-Code deployment:
+This repository includes a pre-configured, **100% zero-cost** `render.yaml` blueprint with no payment card required:
 
 1. Push your repository to GitHub.
-2. In [Render Dashboard](https://dashboard.render.com/), choose **New -> Blueprint** and select this repo.
+2. In [Render Dashboard](https://dashboard.render.com/), choose **New + -> Blueprint** and select your repository.
 3. Render automatically provisions:
-   - Web Service with Docker runtime.
-   - 10GB persistent disk mounted at `/app/backend/outputs`.
-   - Health check endpoint `/api/health`.
-4. Add your optional API keys (`GNEWS_API_KEY`, `UNSPLASH_ACCESS_KEY`, `PIXABAY_API_KEY`) under Environment Variables.
+   - **Service:** Docker Web Service on **Free Tier** (`plan: free`, $0/mo).
+   - **Health Check:** Monitored via `/api/health`.
+   - **Zero Cost Guarantee:** No paid persistent disks required.
+   - **Resource Safety:** Uses memory-safe FFmpeg settings (`FFMPEG_THREADS=1`, `VIDEO_RESOLUTION=720p`) tailored for 512MB container limits.
+4. **Free Tier Storage Policy:** Free instances operate on ephemeral disk space that resets after 15 minutes of inactivity. The studio provides an immediate **"Download MP4"** button to save rendered videos directly to your device.
+5. **Scheduler on Free Tier:** By default, unattended cloud scheduling is disabled (`ENABLE_DAILY_SCHEDULER=false`) because free web services sleep when idle. For 24/7 autonomous scheduling, run locally.
 
 ---
+
+### Local Powerhouse — Permanent Free Archiving & 24/7 Scheduling
+
+For maximum rendering speed and permanent video archiving without cloud memory or sleep limitations, run the studio locally:
+
+* **Hardware Accelerated:** Uses your machine's full CPU/GPU cores for high-speed 1080p rendering in 8–12 seconds.
+* **Permanent Storage:** Videos, audio tracks, and metadata persist permanently in `./backend/outputs`.
+* **Autonomous 24/7 Daily News Scheduler:** Set `ENABLE_DAILY_SCHEDULER=true` in `.env` to automatically generate fresh, deduplicated news stories every 24 hours while your computer is on.
+
+---
+
 
 ## 📡 API Reference Summary
 

@@ -9,10 +9,11 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 
-  if (process.env.ENABLE_DAILY_SCHEDULER !== "false") {
+  const isSchedulerEnabled = process.env.ENABLE_DAILY_SCHEDULER === "true" || (process.env.NODE_ENV !== "production" && process.env.ENABLE_DAILY_SCHEDULER !== "false");
+  if (isSchedulerEnabled) {
     schedulerService.startScheduler();
   } else {
-    console.log("[Server] Daily news video scheduler disabled via ENABLE_DAILY_SCHEDULER=false.");
+    console.log("[Server] Autonomous daily scheduler disabled by default (cloud free-tier policy). Run locally or set ENABLE_DAILY_SCHEDULER=true.");
   }
 });
 

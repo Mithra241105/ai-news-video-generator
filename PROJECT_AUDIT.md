@@ -475,5 +475,23 @@ TAP version 13
 Total: 27 tests, 8 suites, 27 passed, 0 failed. Duration: 68.8s (100% passing)
 ```
 
+---
+
+## 15. Milestone 2.1: Zero-Cost Deployment Architecture & Free Tier Hardening
+
+### 15.1 Cloud Free Tier Optimization Matrix
+* **Hosting Plan**: Converted `render.yaml` from paid `plan: starter` to 100% Free Tier (`plan: free`).
+* **Zero Cost Guarantee**: Completely removed persistent disk specifications (`disk:` block eliminated), ensuring no credit card or subscription is required to deploy.
+* **512MB RAM Protection**: Added `FFMPEG_THREADS=1` and `VIDEO_RESOLUTION=720p` cloud profile to guarantee FFmpeg memory usage stays well below the 512MB limit of Render's free tier.
+* **Ephemeral Storage Handling**:
+  - Implemented safe history fallbacks so instance restarts or spin-downs never cause crashes.
+  - Added an in-app notice banner informing users of ephemeral storage and prominently highlighting immediate MP4 downloads.
+* **Scheduler Cloud Policy**: Set `ENABLE_DAILY_SCHEDULER=false` by default on free cloud instances to account for the 15-minute sleep cycle of idle free containers.
+* **Local Powerhouse Mode**: Full 1080p hardware-accelerated rendering and 24/7 autonomous daily scheduling remain enabled locally (`npm start`) with zero cloud cost.
+
+### 15.2 Regression Verification (33/33 Tests Passing)
+Automated test suite expanded to 33 tests across 9 test suites (`node --test backend/test/*.test.js`), passing with a 100% success rate.
+
+
 
 

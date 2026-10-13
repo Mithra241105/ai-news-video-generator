@@ -2,31 +2,26 @@ services:
   - type: web
     name: ai-news-video-generator
     runtime: docker
-    plan: starter
+    plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
-    disk:
-      name: video-archive
-      mountPath: /app/backend/outputs
-      sizeGB: 10
     healthCheckPath: /api/health
     envVars:
       - key: PORT
         value: 5000
       - key: NODE_ENV
         value: production
+      - key: ENABLE_DAILY_SCHEDULER
+        value: "false"
+      - key: VIDEO_RESOLUTION
+        value: "720p"
+      - key: FFMPEG_THREADS
+        value: "1"
       - key: GNEWS_API_KEY
         sync: false
       - key: UNSPLASH_ACCESS_KEY
         sync: false
       - key: PIXABAY_API_KEY
         sync: false
-      - key: ENABLE_DAILY_SCHEDULER
-        value: "true"
-      - key: SCHEDULER_INTERVAL_HOURS
-        value: "24"
-      - key: SCHEDULER_CATEGORY
-        value: general
-      - key: SCHEDULER_TEMPLATE
-        value: breaking
+
 

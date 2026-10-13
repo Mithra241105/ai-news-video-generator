@@ -147,6 +147,19 @@ export const VIDEO_CONFIG = {
   minDurationPerSlideSec: 3.5
 };
 
+export const getVideoDimensions = (aspectRatio = "16:9") => {
+  const is720p = process.env.VIDEO_RESOLUTION === "720p";
+  if (aspectRatio === "9:16") {
+    return is720p
+      ? { width: 720, height: 1280, label: "720x1280 (Memory-Safe Free Tier)" }
+      : { width: 1080, height: 1920, label: "1080x1920 (Full HD)" };
+  }
+  return is720p
+    ? { width: 1280, height: 720, label: "1280x720 (Memory-Safe Free Tier)" }
+    : { width: 1920, height: 1080, label: "1920x1080 (Full HD)" };
+};
+
+
 export const SCHEDULER_CONFIG = {
   defaultIntervalHours: 24,
   defaultCategory: "general",

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { PATHS, VIDEO_CONFIG, VIDEO_TEMPLATES } from "../config/newsConfig.js";
+import { PATHS, VIDEO_CONFIG, VIDEO_TEMPLATES, getVideoDimensions } from "../config/newsConfig.js";
 import { getAudioDuration } from "./voice.service.js";
 
 const execFileAsync = promisify(execFile);
@@ -107,9 +107,9 @@ export const renderNewsVideo = async ({
   if (!fs.existsSync(jobTempDir)) fs.mkdirSync(jobTempDir, { recursive: true });
 
   // 1. Determine Dimensions and Formats
-  const formatConfig = VIDEO_CONFIG.formats[aspectRatio] || VIDEO_CONFIG.formats["16:9"];
-  const width = formatConfig.width;
-  const height = formatConfig.height;
+  const dimensions = getVideoDimensions(aspectRatio);
+  const width = dimensions.width;
+  const height = dimensions.height;
   const isVertical = aspectRatio === "9:16";
 
   // 2. Measure Audio Duration
@@ -280,10 +280,12 @@ export const renderNewsVideo = async ({
   ffmpegArgs.push("-map", "[a_final]");
 
   // Codecs and encoding
+  const ffmpegThreads = process.env.FFMPEG_THREADS || (process.env.NODE_ENV === "production" ? "1" : "0");
   ffmpegArgs.push(
     "-c:v", "libx264",
     "-pix_fmt", "yuv420p",
     "-preset", "faster",
+    "-threads", ffmpegThreads,
     "-r", "30",
     "-t", totalDuration.toString(),
     "-c:a", "aac",

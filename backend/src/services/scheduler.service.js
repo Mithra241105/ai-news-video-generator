@@ -179,6 +179,7 @@ export async function runScheduledJob(options = {}) {
         console.log("[SchedulerService] ℹ️ All top stories were previously generated. Deduplication active; skipping redundant video.");
         isJobRunning = false;
         schedulerState.lastStatus = "SUCCESS";
+        schedulerState.totalRuns += 1;
         schedulerState.lastJobSummary = {
           storyTitle: null,
           action: "SKIPPED_DUPLICATE",
