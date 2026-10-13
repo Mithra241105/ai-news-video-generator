@@ -103,4 +103,12 @@ describe("API Route Integration Tests", () => {
     assert.equal(res.data.success, true);
     assert.ok(Array.isArray(res.data.videos));
   });
+
+  test("GET /api/news/scheduler/status returns scheduler configuration", async () => {
+    const res = await axios.get(`${BASE_URL}/api/news/scheduler/status`);
+    assert.equal(res.status, 200);
+    assert.equal(res.data.success, true);
+    assert.ok(typeof res.data.enabled === "boolean");
+    assert.ok(res.data.intervalHours >= 1);
+  });
 });

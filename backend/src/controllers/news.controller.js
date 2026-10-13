@@ -5,6 +5,7 @@ import { prepareArticleScript, generateNewsScript } from "../services/script.ser
 import { prepareImagesForVideo, getImages } from "../services/image.service.js";
 import { synthesizeNarration, generateVoice } from "../services/voice.service.js";
 import { renderNewsVideo, generateVideo } from "../services/video.service.js";
+import schedulerService from "../services/scheduler.service.js";
 import {
   NEWS_CATEGORIES,
   TTS_VOICES,
@@ -447,3 +448,57 @@ export const deleteVideoController = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+/**
+ * Get current state, next execution, and audit log of the daily scheduler
+ */
+export const getSchedulerStatusController = (req, res) => {
+  try {
+    const status = schedulerService.getSchedulerStatus();
+    res.json({ success: true, ...status });
+  } catch (error) {
+    console.error("[NewsController] getSchedulerStatus error:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * Manually trigger an immediate scheduled news video production run
+ */
+export const triggerSchedulerController = async (req, res) => {
+  try {
+    const { force, category, template, voice, aspectRatio } = req.body || {};
+    const result = await schedulerService.runScheduledJob({
+      isManual: true,
+      force: Boolean(force),
+      category,
+      template,
+      voice,
+      aspectRatio
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("[NewsController] triggerScheduler error:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * Dynamically configure or start/stop the automated scheduler
+ */
+export const configureSchedulerController = (req, res) => {
+  try {
+    const { enabled, intervalHours, preferredCategory, template } = req.body || {};
+    let status;
+    if (enabled === false) {
+      status = schedulerService.stopScheduler();
+    } else {
+      status = schedulerService.startScheduler({ intervalHours, preferredCategory, template });
+    }
+    res.json({ success: true, ...status });
+  } catch (error) {
+    console.error("[NewsController] configureScheduler error:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+

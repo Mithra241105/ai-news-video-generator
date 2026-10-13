@@ -66,6 +66,7 @@ const historyGrid = document.getElementById("historyGrid");
 document.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
   await checkSystemHealth();
+  await checkSchedulerStatus();
   await loadVoices();
   await fetchArticles(currentCategory);
   await fetchVideoHistory();
@@ -165,6 +166,66 @@ async function checkSystemHealth() {
     console.warn("Health check error:", err);
   }
 }
+
+async function checkSchedulerStatus() {
+  const schedulerTextEl = document.getElementById("schedulerText");
+  const schedulerDotEl = document.querySelector(".scheduler-dot");
+  if (!schedulerTextEl) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/news/scheduler/status`);
+    const data = await res.json();
+    if (data.success && data.enabled) {
+      if (data.isJobRunning) {
+        schedulerTextEl.innerText = "Auto Dispatch: Producing Video...";
+        if (schedulerDotEl) schedulerDotEl.classList.add("active");
+      } else if (data.nextRunAt) {
+        const nextTime = new Date(data.nextRunAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        schedulerTextEl.innerText = `Auto Dispatch: Active (Next: ${nextTime})`;
+        if (schedulerDotEl) schedulerDotEl.classList.add("active");
+      } else {
+        schedulerTextEl.innerText = `Auto Dispatch: Active (${data.intervalHours}h)`;
+      }
+    } else {
+      schedulerTextEl.innerText = "Auto Dispatch: Disabled";
+      if (schedulerDotEl) schedulerDotEl.classList.remove("active");
+    }
+  } catch (err) {
+    console.warn("Scheduler status check error:", err);
+  }
+}
+
+window.triggerManualSchedulerRun = async function() {
+  const btn = document.getElementById("triggerSchedulerBtn");
+  const schedulerTextEl = document.getElementById("schedulerText");
+  if (btn) btn.disabled = true;
+  if (schedulerTextEl) schedulerTextEl.innerText = "Auto Dispatch: Running...";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/news/scheduler/trigger`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isManual: true })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (data.skipped) {
+        alert("Deduplication Active: All current headlines were already produced. No redundant video was created.");
+      } else {
+        await fetchVideoHistory();
+        alert(`Autonomous Dispatch Succeeded!\nProduced: "${data.articleTitle}"\nFile: ${data.videoFile}`);
+      }
+    } else {
+      alert(`Dispatch Error: ${data.error || "Execution failed"}`);
+    }
+  } catch (err) {
+    alert(`Failed to trigger dispatch: ${err.message}`);
+  } finally {
+    if (btn) btn.disabled = false;
+    await checkSchedulerStatus();
+  }
+};
+
 
 async function loadVoices() {
   try {

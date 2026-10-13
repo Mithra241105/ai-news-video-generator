@@ -146,3 +146,15 @@ export const VIDEO_CONFIG = {
   defaultTemplate: "breaking",
   minDurationPerSlideSec: 3.5
 };
+
+export const SCHEDULER_CONFIG = {
+  defaultIntervalHours: 24,
+  defaultCategory: "general",
+  defaultTemplate: "breaking",
+  defaultVoice: "en-US-GuyNeural",
+  defaultAspectRatio: "16:9",
+  maxAuditEntries: 50,
+  auditFile: "scheduler_audit.json",
+  seenFile: "scheduler_seen.json"
+};
+

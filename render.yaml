@@ -21,3 +21,12 @@ services:
         sync: false
       - key: PIXABAY_API_KEY
         sync: false
+      - key: ENABLE_DAILY_SCHEDULER
+        value: "true"
+      - key: SCHEDULER_INTERVAL_HOURS
+        value: "24"
+      - key: SCHEDULER_CATEGORY
+        value: general
+      - key: SCHEDULER_TEMPLATE
+        value: breaking
+

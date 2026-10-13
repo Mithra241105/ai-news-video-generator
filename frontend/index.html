@@ -21,10 +21,16 @@
           <h1>AI News Video Generator</h1>
           <p class="tagline">Automated Journalism &amp; Video Production Engine</p>
         </div>
-      </div>
-      <div class="system-status" id="systemStatus">
-        <span class="status-dot"></span>
-        <span id="statusText">Checking Engine Status...</span>
+      <div class="header-status-group">
+        <div class="scheduler-status" id="schedulerStatus">
+          <span class="scheduler-dot active"></span>
+          <span id="schedulerText">Daily Auto-Dispatch: Ready</span>
+          <button id="triggerSchedulerBtn" class="scheduler-action-btn" onclick="triggerManualSchedulerRun()" title="Trigger scheduled video production immediately">Dispatch Now</button>
+        </div>
+        <div class="system-status" id="systemStatus">
+          <span class="status-dot"></span>
+          <span id="statusText">Checking Engine Status...</span>
+        </div>
       </div>
     </div>
   </header>
