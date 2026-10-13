@@ -1,4 +1,4 @@
-import { test, describe } from "node:test";
+import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import axios from "axios";
 import { execFile } from "child_process";
@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 
 import { PATHS } from "../src/config/newsConfig.js";
+import app from "../src/app.js";
 
 const execFileAsync = promisify(execFile);
 const BASE_URL = "http://localhost:5000";
@@ -16,6 +17,25 @@ describe("Comprehensive End-to-End Workflow Validation Pass", () => {
   let customEditedScript;
   let render169Result;
   let render916Result;
+  let serverInstance = null;
+
+  before(async () => {
+    try {
+      await axios.get(`${BASE_URL}/api/health`, { timeout: 800 });
+    } catch {
+      await new Promise((resolve) => {
+        serverInstance = app.listen(5000, () => resolve());
+      });
+    }
+  });
+
+  after(async () => {
+    if (serverInstance) {
+      await new Promise((resolve) => {
+        serverInstance.close(() => resolve());
+      });
+    }
+  });
 
   test("Step 1: Check Health & Engine Capabilities", async () => {
     const healthRes = await axios.get(`${BASE_URL}/api/health`);
